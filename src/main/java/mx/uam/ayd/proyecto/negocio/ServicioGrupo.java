@@ -35,4 +35,13 @@ public class ServicioGrupo {
 		return grupos;
 	}
 
+
+	public Grupo buscarGupo(String grupo) {
+		Grupo grupoAux = grupoRepository.findByNombre(grupo);
+		return grupoAux;
+	}
+
+
+	
+
 }

@@ -17,7 +17,7 @@ import lombok.Data;
 /**
  * Entidad de negocio Grupo
  * 
- * @author humbertocervantes
+ * @author 
  *
  */
 @Entity
@@ -29,7 +29,7 @@ public class Grupo {
 
 	private String nombre;
 	
-	@OneToMany(targetEntity = Usuario.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(targetEntity = Usuario.class, fetch = FetchType.EAGER, cascade = CascadeType.REMOVE, orphanRemoval = true)
     @JoinColumn(name = "idGrupo")
 	private final List <Usuario> usuarios = new ArrayList <> ();
 	

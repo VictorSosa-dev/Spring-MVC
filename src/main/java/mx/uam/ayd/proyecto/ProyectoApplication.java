@@ -18,7 +18,7 @@ import mx.uam.ayd.proyecto.presentacion.principal.PrincipalController;
  * 
  * Ejemplo de cambio en Rama
  * 
- * @author humbertocervantes
+ * @author 
  *
  */
 @SpringBootApplication

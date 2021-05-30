@@ -5,13 +5,19 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import mx.uam.ayd.proyecto.datos.GrupoRepository;
 import mx.uam.ayd.proyecto.datos.UsuarioRepository;
+import mx.uam.ayd.proyecto.dto.UsuarioDto;
 import mx.uam.ayd.proyecto.negocio.modelo.Grupo;
 import mx.uam.ayd.proyecto.negocio.modelo.Usuario;
 
+/**
+ * Clase  que maneja la logica de negocio del los usuarios
+ * @author Victor
+ *
+ */
 @Slf4j
 @Service
 public class ServicioUsuario {
@@ -22,69 +28,139 @@ public class ServicioUsuario {
 	@Autowired
 	private GrupoRepository grupoRepository;
 	
+
+	
 	/**
-	 * 
 	 * Permite agregar un usuario
-	 * 
-	 * @param nombre
-	 * @param apellido
-	 * @param grupo
-	 * @return
+	 *  
+	 * @param usuarioDto
+	 * @return dto con el id del usuario
 	 */
-public Usuario agregaUsuario(String nombre, String apellido, int edad, String nombreGrupo) {
+	public UsuarioDto agregaUsuario(UsuarioDto usuarioDto) {
 		
-		// Regla de negocio: No se permite agregar dos usuarios con el mismo nombre y apellido
-		
-		
-		Usuario usuario = usuarioRepository.findByNombreAndApellido(nombre, apellido);
+		Usuario usuario = usuarioRepository.findByNombreAndApellido(usuarioDto.getNombre(), usuarioDto.getApellido());
 		
 		if(usuario != null) {
 			throw new IllegalArgumentException("Ese usuario ya existe");
 		}
 		
-		Grupo grupo = grupoRepository.findByNombre(nombreGrupo);
+		Optional <Grupo> optGrupo = grupoRepository.findById(usuarioDto.getGrupo());
 		
-		if(grupo == null) {
+		if(optGrupo.isEmpty()) {
 			throw new IllegalArgumentException("No se encontró el grupo");
 		}
+				
+		Grupo grupo = optGrupo.get();
 		
-		log.info("Agregando usuario nombre: "+nombre+" apellido:"+apellido);
+		log.info("Agregando usuario nombre: "+usuarioDto.getNombre()+" apellido:"+usuarioDto.getApellido());
 		
 		usuario = new Usuario();
-		usuario.setNombre(nombre);
-		usuario.setApellido(apellido);
-		usuario.setEdad(edad);
+		usuario.setNombre(usuarioDto.getNombre());
+		usuario.setApellido(usuarioDto.getApellido());
+		usuario.setEdad(usuarioDto.getEdad());
+		usuario.setGrupo(grupo);
 		
-		usuarioRepository.save(usuario);
+		usuario = usuarioRepository.save(usuario);
 		
 		grupo.addUsuario(usuario);
 		
-		
 		grupoRepository.save(grupo);
 		
-		return usuario;
 		
+		
+		return UsuarioDto.creaDto(usuario);
 
 	}
-
+	
 	/**
 	 * Recupera todos los usuarios existentes
 	 * 
 	 * @return Una lista con los usuarios (o lista vacía)
 	 */
-	public List <Usuario> recuperaUsuarios() {
-
+	public List <UsuarioDto> recuperaUsuarios() {
+        
+		List <UsuarioDto> usuarios = new ArrayList<>();
 		
-		log.info("usuarioRepository = "+usuarioRepository);
-		
-		List <Usuario> usuarios = new ArrayList<>();
-		
-		for(Usuario usuario:usuarioRepository.findAll()) {
-			usuarios.add(usuario);
+		for (Usuario usuario : usuarioRepository.findAll()) {
+			  usuarios.add(UsuarioDto.creaDto(usuario));
 		}
-			
 		
 		return usuarios;
 	}
+	
+	/**
+	 * Recuperar un usuario por su id
+	 * 
+	 * @param id
+	 * @return
+	 */
+	public Usuario recuperaId(Long id) {
+		
+		Optional<Usuario> usuario = usuarioRepository.findById(id);
+		
+		if(usuario != null) {
+			return usuario.get();
+		}else {
+			throw new IllegalArgumentException("Ese usuario con "+ id +" no existe");
+		}
+		
+	}
+
+
+	/**
+	 * Se actualiza un usuario con el id 
+	 * 
+	 * @param id
+	 * @param usuario
+	 * @return
+	 */
+	public UsuarioDto actualiza(Long id, UsuarioDto usuario) {
+		
+		Optional<Usuario> optionalUsuario = usuarioRepository.findById(id);
+		
+		if(optionalUsuario == null) {
+			throw new IllegalArgumentException("No se encontró el usuario");
+		}
+		
+		Usuario usuarioAux = optionalUsuario.get();
+		
+		Optional <Grupo> optGrupo = grupoRepository.findById(usuario.getGrupo());
+		
+		if(optGrupo.isEmpty()) {
+			throw new IllegalArgumentException("No se encontró el grupo");
+		}
+				
+		Grupo grupo = optGrupo.get();
+		
+		usuarioAux.setNombre(usuario.getNombre());
+		usuarioAux.setApellido(usuario.getApellido());
+		usuarioAux.setEdad(usuario.getEdad());
+		usuarioAux.setGrupo(grupo);
+		
+		usuarioAux = usuarioRepository.save(usuarioAux);
+		
+		grupo.addUsuario(usuarioAux);
+		
+		grupoRepository.save(grupo);
+		
+		
+		return UsuarioDto.creaDto(usuarioAux);
+	}
+	
+	
+	/**
+	 * Metodo para eliminar un usuario
+	 * 
+	 * @param id
+	 */
+	public void eliminarUsuario(Long id) {
+		
+		usuarioRepository.deleteById(id);
+	}
+
+	
+	
+	
+	
 
 }

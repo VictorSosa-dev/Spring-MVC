@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import lombok.extern.slf4j.Slf4j;
+import mx.uam.ayd.proyecto.dto.UsuarioDto;
 import mx.uam.ayd.proyecto.negocio.ServicioGrupo;
 import mx.uam.ayd.proyecto.negocio.ServicioUsuario;
 import mx.uam.ayd.proyecto.negocio.modelo.Grupo;
@@ -67,15 +68,16 @@ public class AgregarUsuarioController {
     		@RequestParam(value="edad", required=true) int edad, Model model) {
     	
 		
-    		log.info("Agregando usuario "+nombre+" "+apellido+" "+edad+" "+grupo);
+    		log.info("Agregando usuario: "+ "Nombre "+nombre+"Apellido "+apellido+"Edad "+edad+"Grupo "+grupo);
     		
     		try {
-    		
+    			Grupo grupoAux = servicioGrupo.buscarGupo(grupo);
     			// Invocación al servicio
-    			Usuario usuario = servicioUsuario.agregaUsuario(nombre, apellido, edad, grupo);
+    			UsuarioDto usuarioDto = servicioUsuario.agregaUsuario(UsuarioDto.creaDto(new Usuario(nombre, apellido, edad, grupoAux)));
+    			//Usuario usuario = servicioUsuario.agregaUsuario(nombre, apellido, edad, grupo);
     			
     			// Agregamos el usuario al modelo que se le pasa a la vista
-    			model.addAttribute("usuario", usuario);
+    			model.addAttribute("usuario", usuarioDto);
     			
     			// Redirigimos a la vista de éxito
     			return "vistaAgregarUsuario/AgregarUsuarioExito";
@@ -93,5 +95,4 @@ public class AgregarUsuarioController {
        
     	
     }
-
 }

@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import lombok.extern.slf4j.Slf4j;
+import mx.uam.ayd.proyecto.dto.UsuarioDto;
 import mx.uam.ayd.proyecto.negocio.ServicioUsuario;
 import mx.uam.ayd.proyecto.negocio.modelo.Usuario;
 
@@ -30,7 +31,7 @@ public class ListarUsuariosController {
 		try {
 			
 			// Invocamos al servicio
-			List <Usuario> usuarios = servicioUsuario.recuperaUsuarios();
+			List <UsuarioDto> usuarios = servicioUsuario.recuperaUsuarios();
 			
 			// Agregamos la lista de usuarios al modelo
 			model.addAttribute("usuarios", usuarios);
